@@ -26,7 +26,6 @@ const config: Configuration = {
   module: {
     rules: [
       {
-        exclude: [/node_modules/, /\.dll\.js/],
         test: /\.(js|jsx|ts|tsx)$/,
         use: [
           {
