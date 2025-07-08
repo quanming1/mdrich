@@ -65,7 +65,7 @@ const config: webpack.Configuration = {
       directory: resolvePath("../dist"),
       publicPath: "/",
     },
-    port: 6874,
+    port: 6977,
     hot: true,
     historyApiFallback: true,
   },
