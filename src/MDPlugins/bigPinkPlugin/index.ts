@@ -2,8 +2,6 @@ import { fromMarkdownBigPinkExtension } from "./fromMarkdownBigPinkExtension";
 import { micromarkBigPinkExtension } from "./micromarkBigPinkExtension";
 
 function BigPinkPlugin() {
-  console.log("🎨 BigPinkPlugin 正在注册...");
-
   const data = this.data();
 
   // 注册 fromMarkdown 扩展
