@@ -1,7 +1,5 @@
 declare module "*.scss" {
-  const cssstyle: {
-    [string]: string;
-  };
+  const cssstyle: any;
   export default cssstyle;
 }
 
