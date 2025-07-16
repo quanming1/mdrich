@@ -1,0 +1,150 @@
+.rich-text-editor {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  .editor-header {
+    padding: 20px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e9ecef;
+    text-align: center;
+
+    h1 {
+      margin: 0 0 8px 0;
+      color: #2c3e50;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0;
+      color: #6c757d;
+      font-size: 14px;
+    }
+  }
+
+  .editor-container {
+    flex: 1;
+    display: flex;
+    height: calc(100vh - 120px);
+
+    .editor-panel,
+    .preview-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: #ffffff;
+
+      .panel-header {
+        padding: 16px 20px;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+
+        h3 {
+          margin: 0;
+          color: #495057;
+          font-size: 16px;
+          font-weight: 500;
+        }
+      }
+    }
+
+    .editor-panel {
+      border-right: 1px solid #e9ecef;
+
+      .editor-textarea {
+        flex: 1;
+        border: none;
+        outline: none;
+        resize: none;
+        padding: 20px;
+        font-family: "Fira Code", "Monaco", "Menlo", monospace;
+        font-size: 14px;
+        line-height: 1.6;
+        color: #2c3e50;
+        background-color: #ffffff;
+
+        &::placeholder {
+          color: #adb5bd;
+        }
+
+        &:focus {
+          background-color: #f8f9fa;
+        }
+      }
+    }
+
+    .preview-panel {
+      .preview-content {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        line-height: 1.6;
+        color: #2c3e50;
+
+        h1,
+        h2,
+        h3 {
+          margin: 0 0 16px 0;
+          color: #2c3e50;
+        }
+
+        h1 {
+          font-size: 24px;
+          font-weight: 600;
+          border-bottom: 2px solid #e9ecef;
+          padding-bottom: 8px;
+        }
+
+        h2 {
+          font-size: 20px;
+          font-weight: 500;
+        }
+
+        h3 {
+          font-size: 18px;
+          font-weight: 500;
+        }
+
+        strong {
+          font-weight: 600;
+          color: #2c3e50;
+        }
+
+        em {
+          font-style: italic;
+          color: #6c757d;
+        }
+
+        ul {
+          margin: 16px 0;
+          padding-left: 20px;
+
+          li {
+            margin: 4px 0;
+            list-style-type: disc;
+          }
+        }
+
+        pre {
+          background-color: #f8f9fa;
+          border: 1px solid #e9ecef;
+          border-radius: 4px;
+          padding: 16px;
+          margin: 16px 0;
+          overflow-x: auto;
+
+          code {
+            font-family: "Fira Code", "Monaco", "Menlo", monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            color: #d63384;
+            background-color: transparent;
+          }
+        }
+      }
+    }
+  }
+}
