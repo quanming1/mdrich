@@ -9,7 +9,7 @@ const RichTextEditor: React.FC = () => {
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
-    localStorage.setItem("text", e.target.value);
+    // localStorage.setItem("text", e.target.value);
     setContent(e.target.value);
   };
 

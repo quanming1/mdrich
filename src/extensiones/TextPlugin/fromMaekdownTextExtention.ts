@@ -27,6 +27,7 @@ export function fromTextExtention() {
       },
 
       [TextTokenType.StyleContent](token) {
+        stemp = {}; // 必须重置，不然会叠加
         const styles = this.sliceSerialize(token);
         const styleList = styles.split(";");
         styleList.forEach((item) => {

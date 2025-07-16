@@ -71,6 +71,8 @@ export default function micromarkTextExtension(options = {}) {
             if (code === allCodes[")"]) {
               effect.exit(TextTokenType.StyleContent);
               return delimiter(code);
+            } else if (code === codes.eof) {
+              return nok(code);
             }
             effect.consume(code);
             return styleContent;
@@ -81,6 +83,8 @@ export default function micromarkTextExtension(options = {}) {
             if (code === allCodes["]"]) {
               effect.exit(TextTokenType.TextContent);
               return delimiter(code);
+            } else if (code === codes.eof) {
+              return nok(code);
             }
 
             effect.consume(code);
