@@ -4,9 +4,12 @@ import ReactMarkdown from "react-markdown";
 import textPlugin from "../../extensiones/TextPlugin";
 
 const RichTextEditor: React.FC = () => {
-  const [content, setContent] = useState<string>(`=123=`);
+  const [content, setContent] = useState<string>(
+    localStorage.getItem("text") || `_[(color:red;font-size:12px)你好，世界]_`,
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
+    localStorage.setItem("text", e.target.value);
     setContent(e.target.value);
   };
 

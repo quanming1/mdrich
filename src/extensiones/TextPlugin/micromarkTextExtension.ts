@@ -1,55 +1,90 @@
-import { TextTokenType, textCode } from "./constant";
+import { TextTokenType } from "./constant";
 // @ts-ignore
 import { codes } from "micromark-util-symbol";
+
+const allCodes = {
+  _: "_".charCodeAt(0),
+  "[": "[".charCodeAt(0),
+  "]": "]".charCodeAt(0),
+  "(": "(".charCodeAt(0),
+  ")": ")".charCodeAt(0),
+};
 
 export default function micromarkTextExtension(options = {}) {
   return {
     text: {
-      [textCode]: {
+      [allCodes["_"]]: {
         name: "micromark-text-extension",
         tokenize(effect, ok, nok) {
-          return start;
+          let delimiterCount = 0;
+          return delimiter;
 
-          function start(code: number) {
-            if (code !== textCode) {
-              return nok(code);
+          // 定界符解析
+          function delimiter(code: number) {
+            if (code === allCodes["_"] && delimiterCount === 0) {
+              effect.enter(TextTokenType.Text);
+              effect.enter(TextTokenType.Delimiter);
+              delimiterCount++;
+              effect.consume(code);
+              return delimiter;
+            } else if (code === allCodes["["] && delimiterCount === 1) {
+              effect.consume(code);
+              delimiterCount++;
+              effect.exit(TextTokenType.Delimiter);
+              return delimiter;
+            } else if (code === allCodes["("] && delimiterCount === 2) {
+              delimiterCount++;
+              effect.enter(TextTokenType.StyleDelimiter);
+              effect.consume(code);
+              effect.exit(TextTokenType.StyleDelimiter);
+              effect.enter(TextTokenType.StyleContent);
+              return styleContent;
+            } else if (code === allCodes[")"] && delimiterCount === 3) {
+              delimiterCount++;
+              effect.enter(TextTokenType.StyleDelimiter);
+              effect.consume(code);
+              effect.exit(TextTokenType.StyleDelimiter);
+              effect.enter(TextTokenType.TextContent);
+              // 进入正文解析
+              return content;
+            } else if (code === allCodes["]"] && delimiterCount === 4) {
+              effect.enter(TextTokenType.Delimiter);
+              delimiterCount++;
+              effect.consume(code);
+              return delimiter;
+            } else if (code === allCodes["_"] && delimiterCount === 5) {
+              delimiterCount++;
+              effect.consume(code);
+              effect.exit(TextTokenType.Delimiter);
+              effect.exit(TextTokenType.Text);
+              return ok(code);
             }
-            effect.enter(TextTokenType.Text);
-            effect.enter(TextTokenType.TextMarker);
-            effect.consume(textCode);
-            effect.exit(TextTokenType.TextMarker);
-            effect.enter(TextTokenType.TextContent);
-            return contentAuth;
+
+            console.error("定界符解析错误", {
+              char: String.fromCharCode(code),
+              code,
+            });
+            return nok(code);
           }
 
-          // 在content上面加一层，防止==这总情况，出现空的token导致报错
-          function contentAuth(code) {
-            if (code === textCode || code === codes.eof) {
-              return nok(code);
-            }
-            return content(code);
-          }
-
-          function content(code: number) {
-            if (code === codes.eof) {
-              return nok(code);
-            } else if (code === textCode) {
-              effect.exit(TextTokenType.TextContent);
-              return end(code);
+          function styleContent(code: number) {
+            if (code === allCodes[")"]) {
+              effect.exit(TextTokenType.StyleContent);
+              return delimiter(code);
             }
             effect.consume(code);
-            return content;
+            return styleContent;
           }
 
-          function end(code: number) {
-            if (code !== textCode) {
-              return nok(code);
+          // 正文解析
+          function content(code: number) {
+            if (code === allCodes["]"]) {
+              effect.exit(TextTokenType.TextContent);
+              return delimiter(code);
             }
-            effect.enter(TextTokenType.TextMarker);
-            effect.consume(textCode);
-            effect.exit(TextTokenType.TextMarker);
-            effect.exit(TextTokenType.Text);
-            return ok(code);
+
+            effect.consume(code);
+            return content;
           }
         },
       },

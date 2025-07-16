@@ -2,11 +2,10 @@ import { TextTokenType } from "./constant";
 import "./style/index.scss";
 
 export function fromTextExtention() {
+  let stemp = {};
   return {
     enter: {
       [TextTokenType.TextContent](token) {
-        console.log("this", this);
-        console.log("token", token);
         this.enter(
           {
             type: TextTokenType.TextContent,
@@ -19,12 +18,23 @@ export function fromTextExtention() {
             data: {
               hName: "span",
               hProperties: {
-                className: ["richmd-text__wrapper"],
+                style: stemp,
               },
             },
           },
           token,
         );
+      },
+
+      [TextTokenType.StyleContent](token) {
+        const styles = this.sliceSerialize(token);
+        const styleList = styles.split(";");
+        styleList.forEach((item) => {
+          const [key, value] = item.split(":");
+          if (key && value) {
+            stemp[key.trim()] = value.trim();
+          }
+        });
       },
     },
     exit: {
