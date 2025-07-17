@@ -1,5 +1,5 @@
-import { TextTokenType } from "./constant";
-import "./style/index.scss";
+import { TextTokenType } from "../constants/constant";
+import "../styles/index.scss";
 
 export function fromTextExtention() {
   let stemp = {};

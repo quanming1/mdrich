@@ -1,4 +1,4 @@
-import { TextTokenType } from "./constant";
+import { TextTokenType } from "../constants/constant";
 // @ts-ignore
 import { codes } from "micromark-util-symbol";
 
