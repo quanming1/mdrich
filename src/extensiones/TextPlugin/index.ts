@@ -17,3 +17,6 @@ export {
   SelectionUtils,
   DOMSelectionConverter,
 } from "./utils/selection";
+
+// 导出MDAST编辑器
+export { MDASTEditor } from "./utils/mdastEditor";

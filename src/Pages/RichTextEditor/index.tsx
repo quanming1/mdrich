@@ -9,6 +9,7 @@ import textPlugin, {
   SelectionUtils,
   RangeUtils,
   PointUtils,
+  MDASTEditor,
 } from "../../extensiones/TextPlugin";
 
 const RichTextEditor: React.FC = () => {
@@ -26,6 +27,7 @@ _[(background:yellow;padding:8px)这是黄色背景]_
   );
 
   const previewRef = useRef<HTMLDivElement>(null);
+  const mdastEditorRef = useRef<MDASTEditor | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
     setContent(e.target.value);
@@ -94,10 +96,37 @@ _[(background:yellow;padding:8px)这是黄色背景]_
     };
   }, []);
 
-  // 移除编辑功能，专注于Selection系统
+  // MDAST编辑器初始化
   useEffect(() => {
-    // 这里可以添加其他必要的副作用
-  }, []);
+    if (!previewRef.current) return;
+
+    // 等待MDAST树生成
+    const initEditor = () => {
+      const mdastTree = (window as any).__mdastTree;
+      if (mdastTree && previewRef.current) {
+        // 销毁旧的编辑器
+        if (mdastEditorRef.current) {
+          mdastEditorRef.current.destroy();
+        }
+
+        // 创建新的编辑器
+        mdastEditorRef.current = new MDASTEditor(mdastTree, previewRef.current);
+        console.log("✅ MDAST编辑器已初始化");
+      }
+    };
+
+    // 延迟初始化，确保ReactMarkdown已经渲染完成
+    const timer = setTimeout(initEditor, 500);
+
+    // 监听content变化，重新初始化编辑器
+    return () => {
+      clearTimeout(timer);
+      if (mdastEditorRef.current) {
+        mdastEditorRef.current.destroy();
+        mdastEditorRef.current = null;
+      }
+    };
+  }, [content]); // 依赖content，当内容变化时重新初始化编辑器
 
   return (
     <div className="rich-text-editor">
