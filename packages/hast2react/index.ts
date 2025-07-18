@@ -2,13 +2,15 @@ import { toJsxRuntime } from "hast-util-to-jsx-runtime";
 import { Fragment } from "react";
 // @ts-ignore
 import { jsx, jsxs } from "react/jsx-runtime";
-import remarkRehype from "remark-rehype";
-import { unified } from "unified";
 import { visit } from "unist-util-visit";
 import { urlAttributes } from "html-url-attributes";
 
+// 安全协议检查
 const safeProtocol = /^(https?|ircs?|mailto|xmpp)$/i;
 
+/**
+ * 默认的 URL 转换函数，确保 URL 安全
+ */
 function defaultUrlTransform(value: string): string {
   const colon = value.indexOf(":");
   const questionMark = value.indexOf("?");
@@ -29,18 +31,33 @@ function defaultUrlTransform(value: string): string {
   return ""; // 不安全的 URL 返回空字符串
 }
 
-interface MdastToReactOptions {
-  allowedElements?: string[]; // 允许的 HTML 元素列表
-  disallowedElements?: string[]; // 不允许的 HTML 元素列表
-  components?: Record<string, React.ComponentType<any>>; // 自定义组件映射表
-  skipHtml?: boolean; // 是否跳过原始 HTML
-  unwrapDisallowed?: boolean; // 是否展开不允许的元素
-  urlTransform?: (url: string, key: string, node: any) => string; // URL 转换函数
-  allowElement?: (element: any, index: number, parent: any) => boolean; // 自定义元素过滤函数
-  remarkRehypeOptions?: any; // remark-rehype 转换选项
+/**
+ * hast 转 React 元素的选项
+ */
+interface HastToReactOptions {
+  /** 允许的 HTML 元素列表 */
+  allowedElements?: string[];
+  /** 不允许的 HTML 元素列表 */
+  disallowedElements?: string[];
+  /** 自定义组件映射表 */
+  components?: Record<string, React.ComponentType<any>>;
+  /** 是否跳过原始 HTML */
+  skipHtml?: boolean;
+  /** 是否展开不允许的元素 */
+  unwrapDisallowed?: boolean;
+  /** URL 转换函数 */
+  urlTransform?: (url: string, key: string, node: any) => string;
+  /** 自定义元素过滤函数 */
+  allowElement?: (element: any, index: number, parent: any) => boolean;
 }
 
-export function mdast2react(mdastTree: any, options: MdastToReactOptions = {}): React.ReactElement {
+/**
+ * 将 hast 树转换为 React 元素
+ * @param hastTree hast 语法树（HTML AST）
+ * @param options 转换选项
+ * @returns React 元素
+ */
+export function hast2react(hastTree: any, options: HastToReactOptions = {}): React.ReactElement {
   const {
     allowedElements,
     allowElement,
@@ -49,20 +66,25 @@ export function mdast2react(mdastTree: any, options: MdastToReactOptions = {}): 
     skipHtml = true,
     unwrapDisallowed = true,
     urlTransform = defaultUrlTransform,
-    remarkRehypeOptions = { allowDangerousHtml: true },
-  } = options; // 解构选项参数
+  } = options;
 
+  // 检查互斥选项
   if (allowedElements && disallowedElements) {
     throw new Error(
       "Unexpected combined `allowedElements` and `disallowedElements`, expected one or the other",
     );
   }
 
-  const processor = unified().use(remarkRehype, remarkRehypeOptions);
-  const hastTree = processor.runSync(mdastTree);
-  visit(hastTree, transform);
+  // 创建 hast 树的副本以避免修改原始树
+  const clonedHastTree = structuredClone
+    ? structuredClone(hastTree)
+    : JSON.parse(JSON.stringify(hastTree));
+
+  // 对 hast 树进行安全处理
+  visit(clonedHastTree, transform);
+
   // 将 hast 转换为 React 元素
-  return toJsxRuntime(hastTree, {
+  return toJsxRuntime(clonedHastTree, {
     Fragment,
     components,
     ignoreInvalidStyle: true,
@@ -72,7 +94,11 @@ export function mdast2react(mdastTree: any, options: MdastToReactOptions = {}): 
     passNode: true,
   });
 
+  /**
+   * hast 节点转换函数
+   */
   function transform(node: any, index: number, parent: any): number | void {
+    // 处理原始 HTML 节点
     if (node.type === "raw" && parent && typeof index === "number") {
       if (skipHtml) {
         parent.children.splice(index, 1);
@@ -82,16 +108,17 @@ export function mdast2react(mdastTree: any, options: MdastToReactOptions = {}): 
       return index;
     }
 
+    // 处理元素节点的 URL 属性
     if (node.type === "element") {
       for (const key in urlAttributes) {
         if (
           Object.prototype.hasOwnProperty.call(urlAttributes, key) &&
           Object.prototype.hasOwnProperty.call(node.properties, key)
         ) {
-          const value = node.properties[key]; // 获取属性值
-          const test = urlAttributes[key]; // 获取属性测试条件
+          const value = node.properties[key];
+          const test = urlAttributes[key];
           if (test === null || test.includes(node.tagName)) {
-            node.properties[key] = urlTransform(String(value || ""), key, node); // 转换 URL
+            node.properties[key] = urlTransform(String(value || ""), key, node);
           }
         }
       }
