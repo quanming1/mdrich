@@ -76,9 +76,7 @@ export function hast2react(hastTree: any, options: HastToReactOptions = {}): Rea
   }
 
   // 创建 hast 树的副本以避免修改原始树
-  const clonedHastTree = structuredClone
-    ? structuredClone(hastTree)
-    : JSON.parse(JSON.stringify(hastTree));
+  const clonedHastTree = JSON.parse(JSON.stringify(hastTree));
 
   // 对 hast 树进行安全处理
   visit(clonedHastTree, transform);

@@ -32,7 +32,31 @@ export class MarkdownParser {
 
   // mdast 转 hast
   mdast2hast = (mdast: any): any => {
-    return unified().use(remarkRehype, { allowDangerousHtml: false }).runSync(mdast);
+    return unified()
+      .use(remarkRehype, {
+        allowDangerousHtml: false,
+        handlers: {
+          // 自定义处理 text 节点
+          text: (h: any, node: any) => {
+            const nodeId = node["data"]?.["hProperties"]?.["data-mdast-id"];
+            return {
+              type: "element",
+              tagName: "span",
+              properties: {
+                "data-mdast-leaf": true,
+                "data-mdast-id": nodeId,
+              },
+              children: [
+                {
+                  type: "text",
+                  value: node.value,
+                },
+              ],
+            };
+          },
+        },
+      })
+      .runSync(mdast);
   };
 
   parseMarkdown = (md: string): React.ReactElement => {

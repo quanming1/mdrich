@@ -1,6 +1,14 @@
 $main-color: red;
 $main-green: #00b96b;
 
+// 淡雅的调色板
+$soft-gray: #f6f7f8;
+$light-gray: #e8eaed;
+$text-primary: #3c4043;
+$text-secondary: #5f6368;
+$bg-highlight: #e8f0fe;
+$bg-surface: #ffffff;
+
 // 全局重置样式
 * {
   margin: 0;
@@ -8,14 +16,176 @@ $main-green: #00b96b;
   box-sizing: border-box;
 }
 
+// 防止页面抖动的全局样式
+html {
+  overflow-x: hidden; // 防止水平滚动条
+  scrollbar-gutter: stable; // 为滚动条保留稳定空间
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: #f8f9fa;
   color: #2c3e50;
   line-height: 1.6;
+  overflow-x: hidden; // 防止水平滚动条
 }
 
 #root {
   height: 100vh;
+  overflow: hidden; // 防止根容器滚动条
+  width: 100vw;
+}
+
+// 自定义滚动条样式（Webkit）
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $light-gray;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: $text-secondary;
+}
+
+// 火狐浏览器滚动条样式
+* {
+  scrollbar-width: thin;
+  scrollbar-color: $light-gray transparent;
+}
+
+// App 组件样式
+.app-container {
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: $soft-gray;
+  height: 100vh;
+  overflow: hidden; // 防止整体页面滚动
+  width: 100%;
+}
+
+.app-layout {
+  display: flex;
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  height: calc(100vh - 40px); // 减去padding
+  overflow: hidden; // 防止布局容器滚动
+}
+
+.content-section {
+  flex: 2;
+  min-width: 0; // 防止flex项目溢出
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.sidebar-section {
+  flex: 1;
+  min-width: 350px; // 设置最小宽度防止挤压
+  max-width: 500px; // 设置最大宽度
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   overflow: hidden;
+}
+
+.section-title {
+  color: $text-primary;
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  flex-shrink: 0; // 防止标题被压缩
+}
+
+.editor-area {
+  background-color: $bg-surface;
+  padding: 20px 40px;
+  flex: 1; // 占据剩余空间
+  overflow-y: auto; // 允许垂直滚动
+  overflow-x: hidden; // 防止水平滚动
+  min-height: 400px;
+
+  &[contenteditable="true"] {
+    outline: none;
+
+    &:focus {
+      background-color: $bg-surface;
+    }
+  }
+}
+
+.info-panel {
+  background-color: $bg-surface;
+  padding: 20px;
+  margin-bottom: 20px;
+  height: 320px; // 固定高度防止抖动
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.info-content {
+  color: $text-secondary;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.node-info {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  h4 {
+    color: $text-primary;
+    margin-bottom: 10px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  textarea {
+    width: 100%;
+    background-color: $soft-gray;
+    color: $text-primary;
+    font-family: "Consolas", "Monaco", monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 12px;
+    resize: none; // 防止用户调整大小导致布局变化
+    outline: none;
+    flex: 1; // 占据剩余空间
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0; // 允许flex压缩
+  }
+}
+
+.markdown-preview {
+  background-color: $soft-gray;
+  padding: 16px;
+  font-family: "Consolas", "Monaco", monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-y: auto;
+  overflow-x: hidden; // 防止水平滚动
+  height: 200px; // 固定高度防止抖动
+  color: $text-secondary;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+// 高亮样式
+.highlight-selection {
+  background-color: $bg-highlight !important;
+  transition: background-color 0.15s ease; // 平滑过渡
 }

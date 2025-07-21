@@ -67,7 +67,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@virtuoso.dev/message-list": "^1.9.8",
-    "ahooks": "^3.8.1",
+    "ahooks": "^3.9.0",
     "antd": "^5.12.1",
     "autoprefixer": "^10.4.17",
     "axios": "^1.6.2",

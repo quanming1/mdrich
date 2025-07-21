@@ -114,7 +114,7 @@ export class MDASTEditor {
    * 克隆MDAST树
    */
   private cloneMDASTTree(tree: ASTNode): ASTNode {
-    return JSON.parse(JSON.stringify(tree));
+    return _.cloneDeep(tree);
   }
 
   /**
