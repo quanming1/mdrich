@@ -215,12 +215,10 @@ function App() {
       divRef.current.addEventListener("beforeinput", (event) => {
         const ranges = event.getTargetRanges();
         console.log("eventandranges", event, ranges);
-        const id = (ranges[0].startContainer as HTMLElement).getAttribute("data-mdrich-id");
-        const node = EditorManager.getNode(state.mdast, id);
-        if (node.type !== "TextWrapper") {
-          console.log("删除了一个非文本包装节点，不处理", node);
-          return;
-        }
+        const id =
+          ranges[0].startContainer.nodeType === Node.TEXT_NODE
+            ? (ranges[0].startContainer.parentElement as HTMLElement).getAttribute("data-mdrich-id")
+            : (ranges[0].startContainer as HTMLElement).getAttribute("data-mdrich-id");
         event.preventDefault();
 
         const deleteRange = (mdast: any, ranges: StaticRange[]) => {
@@ -236,23 +234,24 @@ function App() {
             if (startId === endId) {
               visit(mdast, (node: any) => {
                 if (node.data?.["hProperties"]?.["data-mdrich-id"] === startId) {
-                  if (node.type !== "TextWrapper") {
-                    console.log("不是文本包装节点", node);
-                    return;
-                  }
-                  console.log("删除前", getTextWrapper(node));
-                  console.log(
-                    "删除后",
-                    getTextWrapper(node).slice(0, startOffset) +
-                      getTextWrapper(node).slice(endOffset),
-                  );
+                  if (node.type === "TextWrapper") {
+                    console.log("删除前", getTextWrapper(node));
+                    console.log(
+                      "删除后",
+                      getTextWrapper(node).slice(0, startOffset) +
+                        getTextWrapper(node).slice(endOffset),
+                    );
 
-                  EditorManager.editNode(
-                    newMdast,
-                    startId,
-                    getTextWrapper(node).slice(0, startOffset) +
-                      getTextWrapper(node).slice(endOffset),
-                  );
+                    EditorManager.editNode(
+                      newMdast,
+                      startId,
+                      getTextWrapper(node).slice(0, startOffset) +
+                        getTextWrapper(node).slice(endOffset),
+                    );
+                  } else if (node.type === "VoidWrapper") {
+                    console.log("删除一个空节点", node);
+                    EditorManager.deleteNode(newMdast, startId);
+                  }
                 }
               });
             } else {
@@ -364,50 +363,6 @@ function App() {
         }
       });
     }
-  }, [divRef]);
-
-  // 监听img被删除的事件
-  useEffect(() => {
-    const handleImg = (imgNode: HTMLImageElement) => {
-      console.log("图片被删除，id为：", imgNode.getAttribute("data-mdrich-id"));
-      const id = imgNode.getAttribute("data-mdrich-id");
-      if (id) {
-        const newMdast = _.cloneDeep(state.mdast);
-        EditorManager.deleteNode(newMdast, id);
-        state.renderedElement = markdownParser.mdast2react(newMdast);
-        state.mdast = newMdast;
-      }
-    };
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === "childList" && mutation.removedNodes.length > 0) {
-          mutation.removedNodes.forEach((node) => {
-            if (node.nodeType === 1 && (node as HTMLElement).tagName === "IMG") {
-              handleImg(node as HTMLImageElement);
-            }
-            // 递归检查子节点
-            if (node.hasChildNodes && node.hasChildNodes()) {
-              node.childNodes.forEach((child) => {
-                if (child.nodeType === 1 && (child as HTMLElement).tagName === "IMG") {
-                  handleImg(child as HTMLImageElement);
-                }
-              });
-            }
-          });
-        }
-      });
-    });
-
-    if (divRef.current) {
-      observer.observe(divRef.current, {
-        childList: true,
-        subtree: true,
-      });
-    }
-
-    return () => {
-      observer.disconnect();
-    };
   }, [divRef]);
 
   return (

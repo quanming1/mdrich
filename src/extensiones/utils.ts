@@ -23,3 +23,12 @@ export function editTextWrapper(node: any, value: string) {
     editTextWrapper(node.children[0], value);
   }
 }
+
+export function isTextNode(node: any): boolean {
+  return node.type === "text";
+}
+
+export function isVoidNode(node: any): boolean {
+  const voidNodes = ["image", "break", "hr", "br"];
+  return voidNodes.includes(node.type);
+}
