@@ -45,8 +45,7 @@ export function getIdsToDelete(
 
   function inorder(node: MdastNode) {
     if (finished) return;
-
-    const nodeId = node["data"]?.["hProperties"]?.["data-mdast-id"];
+    const nodeId = node["data"]?.["hProperties"]?.["data-mdrich-id"];
 
     if (nodeId === start.id) {
       recording = true;

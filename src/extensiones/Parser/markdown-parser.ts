@@ -36,24 +36,7 @@ export class MarkdownParser {
       .use(remarkRehype, {
         allowDangerousHtml: false,
         handlers: {
-          // 自定义处理 text 节点
-          text: (h: any, node: any) => {
-            const nodeId = node["data"]?.["hProperties"]?.["data-mdast-id"];
-            return {
-              type: "element",
-              tagName: "span",
-              properties: {
-                "data-mdast-leaf": true,
-                "data-mdast-id": nodeId,
-              },
-              children: [
-                {
-                  type: "text",
-                  value: node.value,
-                },
-              ],
-            };
-          },
+          // 现在在 insert-node-attrs.ts 中处理 text 节点包裹，这里不需要了
         },
       })
       .runSync(mdast);
